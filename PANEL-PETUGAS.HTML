@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Petugas — Silaturahmi Terpadu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f0f4f8; padding: 30px 20px; max-width: 700px; margin: 0 auto; }
+        h1 { color: #1d3557; text-align: center; margin-bottom: 30px; font-size: 24px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        label { font-weight: bold; color: #1d3557; font-size: 15px; display: block; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+        button { background: #2a9d8f; color: white; border: none; padding: 14px 24px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
+        button:active { background: #218c7b; }
+        .hasil { margin-top: 25px; display: none; }
+        .link-group { margin-bottom: 20px; }
+        .link-label { font-weight: bold; color: #457b9d; font-size: 14px; margin-bottom: 6px; }
+        .link-box { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; border-radius: 6px; font-size: 13px; color: #2d3436; word-break: break-all; font-family: monospace; line-height: 1.5; }
+        .sukses-msg { color: #2a9d8f; font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        hr { border: none; border-top: 1px dashed #ddd; margin: 25px 0; }
+    </style>
+</head>
+<body>
+    <h1>🏢 Panel Petugas — Silaturahmi Terpadu</h1>
+
+    <div class="card">
+        <label for="kodeRuang">Masukkan Kode/Nama Ruangan (tanpa spasi):</label>
+        <input type="text" id="kodeRuang" placeholder="Contoh: bapaksuryadi123">
+        <button onclick="buatLink()">🔗 BUAT TAUTAN PANGGILAN</button>
+
+        <div class="hasil" id="bagianHasil">
+            <div class="sukses-msg">✅ TAUTAN BERHASIL DIBUAT!</div>
+            
+            <div class="link-group">
+                <div class="link-label">📱 TAUTAN UNTUK WBP (buka di tablet):</div>
+                <div class="link-box" id="linkWbp"></div>
+            </div>
+
+            <div class="link-group">
+                <div class="link-label">💬 TAUTAN UNTUK KELUARGA (kirim lewat WA):</div>
+                <div class="link-box" id="linkKeluarga"></div>
+            </div>
+
+            <hr>
+            
+            <div style="font-size:13px; color:#666; line-height:1.8;">
+                <strong>Cara Pakai:</strong><br>
+                1️⃣ Blokir teks di kotak pertama → Salin → Buka di browser tablet<br>
+                2️⃣ Blokir teks di kotak kedua → Salin → Tempel & kirim lewat WA ke keluarga<br>
+                3️⃣ Keduanya izinkan Kamera & Mikrofon → Tunggu beberapa detik → Tersambung ✅
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function buatLink() {
+            const kode = document.getElementById('kodeRuang').value.trim();
+            
+            if (!kode) {
+                alert('❌ Silakan isi kode/nama ruangan dulu!');
+                return;
+            }
+
+            const dasar = 'panggilan.html?ruang=' + encodeURIComponent(kode);
+            
+            document.getElementById('linkWbp').textContent = dasar + '&nama=Warga%20Binaan';
+            document.getElementById('linkKeluarga').textContent = dasar + '&nama=Keluarga';
+            document.getElementById('bagianHasil').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
