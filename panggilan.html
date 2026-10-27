@@ -1,0 +1,102 @@
+<!DOCTYPE html>								
+<html lang="id">								
+<head>								
+<meta charset="UTF-8">								
+<meta name="viewport" content="width=device-width, initial-scale=1.0">								
+<title>Silaturahmi Terpadu — Panggilan Video</title>								
+<style>								
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }								
+body { background: #1a1a2e; color: white; height: 100vh; overflow: hidden; }								
+header { background: #16213e; padding: 12px; text-align: center; font-size: 16px; font-weight: bold; }								
+.timer { font-size: 28px; font-weight: bold; color: #ffd700; text-align: center; padding: 8px; background: #0f3460; }								
+#jitsi-container { width: 100%; height: calc(100vh - 110px); }								
+.info { text-align: center; padding: 8px; font-size: 13px; color: #aaa; }								
+</style>								
+</head>								
+<body>								
+<header>📢 Silaturahmi Terpadu — Rutan Kelas IIB Bantaeng </header>								
+								
+<div class="timer" id="timer">15:00</div>								
+<div class="info" id="info">Menghubungkan... Mohon izinkan kamera & mikrofon saat diminta</div>								
+								
+<div id="jitsi-container"></div>								
+								
+<script src="https://meet.jit.si/external_api.js"></script>								
+<script>								
+const DURASI_MENIT = 15;								
+let sisaDetik = DURASI_MENIT * 60;								
+let timerJalan = true;								
+let api = null;								
+								
+const kodeRuang = new URLSearchParams(window.location.search).get('ruang') || 'ruang-umum';								
+const namaPengguna = new URLSearchParams(window.location.search).get('nama') || 'Pengguna';								
+document.getElementById('info').innerHTML = `Terhubung ke ruang: <strong>${kodeRuang}</strong> — Selamat datang, ${namaPengguna}`;								
+								
+function updateTimer() {								
+if (!timerJalan) return;								
+const menit = Math.floor(sisaDetik / 60);								
+const detik = sisaDetik % 60;								
+document.getElementById('timer').textContent =								
+`${menit.toString().padStart(2,'0')}:${detik.toString().padStart(2,'0')}`;								
+								
+if (sisaDetik === 120) alert('⏱️ Sisa waktu tinggal 2 menit lagi');								
+if (sisaDetik <= 0) {								
+timerJalan = false;								
+akhiriPanggilan();								
+return;								
+}								
+sisaDetik--;								
+}								
+setInterval(updateTimer, 1000);								
+								
+const domain = 'meet.jit.si';								
+const options = {								
+roomName: kodeRuang,								
+width: '100%',								
+height: '100%',								
+parentNode: document.getElementById('jitsi-container'),								
+userInfo: { displayName: namaPengguna },								
+configOverwrite: {								
+startWithAudioMuted: false,								
+startWithVideoMuted: false,								
+disableDeepLinking: true								
+},								
+interfaceConfigOverwrite: {								
+DEFAULT_BACKGROUND: '#1a1a2e',								
+SHOW_JITSI_WATERMARK: false,								
+SHOW_WATERMARK_FOR_GUESTS: false,								
+TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup']								
+}								
+};								
+								
+api = new JitsiMeetExternalAPI(domain, options);								
+								
+function akhiriPanggilan() {								
+if (confirm('⏰ Waktu habis! Panggilan akan diakhiri. Terima kasih.')) {								
+if (api) api.dispose();								
+document.body.innerHTML = `								
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#1a1a2e;color:white;padding:20px;text-align:center;">								
+<h2>✅ Panggilan Selesai</h2>								
+<p>Terima kasih atas kunjungan silaturahmi hari ini.</p>								
+<p style="margin-top:20px;color:#aaa;">Anda bisa menutup halaman ini</p>								
+</div>								
+`;								
+}								
+}								
+</script>								
+</body>								
+</html>								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
