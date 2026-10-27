@@ -2,40 +2,98 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Panggilan Video — Silaturahmi Terpadu</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: #f0f4f8; padding: 20px; }
-        .header { background: #1d3557; color: white; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
-        .timer { font-size: 32px; font-weight: bold; text-align: center; padding: 15px; background: white; border-radius: 8px; margin-bottom: 20px; color: #666; }
-        .timer.aktif { color: #2a9d8f; }
-        .timer.habis { color: #e63946; }
-        .konten { max-width: 900px; margin: 0 auto; }
-        .tombol-gabung { display: block; width: 100%; padding: 15px; font-size: 18px; font-weight: bold; background: #2a9d8f; color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 20px; }
-        .tombol-gabung:hover { background: #218c7b; }
-        .info { text-align: center; color: #555; margin-bottom: 15px; }
-        .jitsi-container { width: 100%; height: 500px; border-radius: 8px; overflow: hidden; background: #ddd; display: none; }
+        body { background: #f0f4f8; min-height: 100vh; }
+        
+        /* --- HEADER --- */
+        .atas { background: #1d3557; color: white; padding: 12px 15px; text-align: center; }
+        .atas h2 { font-size: 18px; margin-bottom: 4px; }
+        .atas p { font-size: 13px; opacity: 0.9; }
+
+        /* --- TIMER --- */
+        .kotak-timer { text-align: center; padding: 15px; background: white; margin: 10px; border-radius: 10px; font-size: 28px; font-weight: bold; color: #666; }
+        .kotak-timer.aktif { color: #2a9d8f; }
+        .kotak-timer.habis { color: #e63946; }
+
+        /* --- TOMBOL GABUNG --- */
+        .wadah-tombol { padding: 15px; max-width: 500px; margin: 0 auto; }
+        .tombol-gabung { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; background: #2a9d8f; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        .tombol-gabung:active { background: #218c7b; }
+        .petunjuk { text-align: center; padding: 0 20px 20px; color: #555; font-size: 14px; line-height: 1.6; }
+
+        /* --- TATA LETAK VIDEO --- */
+        .wadah-video { display: none; padding: 10px; height: calc(100vh - 130px); }
+        
+        .video-utama { 
+            width: 100%; height: 75%; background: #222; border-radius: 10px; 
+            overflow: hidden; margin-bottom: 10px; position: relative;
+        }
+        .video-kecil { 
+            width: 120px; height: 90px; background: #333; border-radius: 8px; 
+            position: absolute; bottom: 20px; right: 15px; border: 2px solid white;
+            overflow: hidden; z-index: 10;
+        }
+
+        /* --- TOMBOL PILIH TAMPILAN --- */
+        .baris-pilih { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .btn-pilih { flex: 1; min-width: 140px; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-pilih.aktif { background: #2a9d8f; color: white; }
+        .btn-pilih.normal { background: #e9ecef; color: #333; }
+
+        /* --- KOTAK JITSI --- */
+        .iframe-utama { width: 100%; height: 100%; border: none; }
+        .iframe-kecil { width: 100%; height: 100%; border: none; }
+
+        .nama-utama {
+            position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.6); color: white;
+            padding: 4px 10px; border-radius: 4px; font-size: 13px; z-index: 5;
+        }
+        .nama-kecil {
+            position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.6); color: white;
+            padding: 2px 6px; border-radius: 3px; font-size: 10px; z-index: 5;
+        }
     </style>
 </head>
 <body>
-    <div class="konten">
-        <div class="header">
-            <h2>📢 Silaturahmi Terpadu — UPT Rutan Kelas IIB Bantaeng</h2>
-            <p id="infoRuang">Terhubung di ruang: —</p>
+
+    <div class="atas">
+        <h2>📢 Silaturahmi Terpadu — UPT Rutan Bantaeng</h2>
+        <p id="infoRuang">Memuat...</p>
+    </div>
+
+    <!-- SEBELUM BERGABUNG -->
+    <div id="sebelumGabung">
+        <div class="kotak-timer" id="timer">⏳ Menunggu dimulai...</div>
+        <div class="wadah-tombol">
+            <button class="tombol-gabung" id="tombolGabung" onclick="mulaiPanggilan()">
+                📞 TEKAN DI SINI UNTUK MULAI PANGGILAN
+            </button>
+        </div>
+        <div class="petunjuk">
+            ✅ <strong>Tidak perlu instal aplikasi apa pun</strong> — cukup buka di browser HP<br>
+            ⚠️ Tekan tombol di atas hanya setelah siap berbicara — waktu akan berjalan otomatis
+        </div>
+    </div>
+
+    <!-- SETELAH BERGABUNG -->
+    <div class="wadah-video" id="setelahGabung">
+        <div class="baris-pilih">
+            <button class="btn-pilih aktif" id="btnUtamaSaya" onclick="aturTampilan('saya')">👤 Saya di Layar Besar</button>
+            <button class="btn-pilih normal" id="btnUtamaLawan" onclick="aturTampilan('lawan')">👤 Lawan di Layar Besar</button>
         </div>
 
-        <div class="timer" id="timer">
-            ⏳ Menunggu bergabung...
+        <div class="video-utama" id="kotakUtama">
+            <div class="nama-utama" id="labelNamaUtama">-</div>
+            <div id="wadahIframeUtama"></div>
         </div>
 
-        <button class="tombol-gabung" id="tombolGabung" onclick="mulaiPanggilan()">
-            📞 KLIK DI SINI UNTUK BERGABUNG PANGGILAN
-        </button>
-
-        <p class="info">⚠️ Tekan tombol di atas HANYA setelah siap berbicara — waktu akan mulai dihitung!</p>
-
-        <div class="jitsi-container" id="wadahVideo"></div>
+        <div class="video-kecil" id="kotakKecil">
+            <div class="nama-kecil" id="labelNamaKecil">-</div>
+            <div id="wadahIframeKecil"></div>
+        </div>
     </div>
 
     <script src="https://meet.jit.si/external_api.js"></script>
@@ -44,76 +102,103 @@
         const DURASI_MENIT = 15;
         let sisaDetik = DURASI_MENIT * 60;
         let waktuBerjalan = false;
-        let antarmukaJitsi = null;
-        let intervalHitung = null;
+        let panggilanUtama = null;
+        let panggilanKecil = null;
+        let susunanUtama = 'lawan'; // secara bawaan: lawan di layar besar
 
         // Ambil data dari alamat
         const urlParams = new URLSearchParams(window.location.search);
         const kodeRuang = urlParams.get('ruang') || 'ruang-umum';
         const namaPengguna = urlParams.get('nama') || 'Peserta';
-        
-        // Tampilkan nama ruang
-        document.getElementById('infoRuang').textContent = 
-            `Terhubung di ruang: ${kodeRuang} — ${namaPengguna}`;
+        const namaLawan = namaPengguna.includes('Warga') ? 'Keluarga' : 'Warga Binaan';
 
-        // === TIMER MULAI HANYA SAAT TOMBOL DIKLIK ===
+        // Tampilkan info ruang
+        document.getElementById('infoRuang').textContent = 
+            `Ruang: ${kodeRuang} — ${namaPengguna}`;
+
+        // === MULAI PANGGILAN ===
         function mulaiPanggilan() {
             if (waktuBerjalan) return;
             waktuBerjalan = true;
 
-            // Sembunyikan tombol
-            document.getElementById('tombolGabung').style.display = 'none';
-            document.querySelector('.info').style.display = 'none';
-
-            // Ubah tampilan timer jadi angka & mulai hitung
+            // Sembunyikan bagian awal, tampilkan video
+            document.getElementById('sebelumGabung').style.display = 'none';
+            document.getElementById('setelahGabung').style.display = 'block';
+            
+            // Ubah timer jadi angka & mulai hitung
             const elemenTimer = document.getElementById('timer');
             elemenTimer.classList.add('aktif');
             hitungMundur();
 
-            // Tampilkan panggilan video
-            const wadah = document.getElementById('wadahVideo');
-            wadah.style.display = 'block';
-
-            const pilihan = {
-                roomName: kodeRuang,
-                width: '100%',
-                height: 500,
-                parentNode: wadah,
-                interfaceConfigOverwrite: {
-                    DEFAULT_BACKGROUND: '#f0f4f8',
-                    SHOW_JITSI_WATERMARK: false,
-                    SHOW_WATERMARK_FOR_GUESTS: false
-                },
-                userInfo: { displayName: namaPengguna }
-            };
-
-            antarmukaJitsi = new JitsiMeetExternalAPI('meet.jit.si', pilihan);
+            // Atur tampilan awal
+            aturTampilan(susunanUtama);
         }
 
-        // Fungsi hitung mundur
+        // === PILIH SIAPA DI LAYAR BESAR ===
+        function aturTampilan(pilihan) {
+            susunanUtama = pilihan;
+
+            // Ubah tombol aktif/tidak
+            document.getElementById('btnUtamaSaya').className = pilihan==='saya' ? 'btn-pilih aktif' : 'btn-pilih normal';
+            document.getElementById('btnUtamaLawan').className = pilihan==='lawan' ? 'btn-pilih aktif' : 'btn-pilih normal';
+
+            // Pindahkan video sesuai pilihan
+            if (pilihan === 'saya') {
+                document.getElementById('labelNamaUtama').textContent = namaPengguna;
+                document.getElementById('labelNamaKecil').textContent = namaLawan;
+                muatKeKotak('wadahIframeUtama', namaPengguna);
+                muatKeKotak('wadahIframeKecil', namaLawan);
+            } else {
+                document.getElementById('labelNamaUtama').textContent = namaLawan;
+                document.getElementById('labelNamaKecil').textContent = namaPengguna;
+                muatKeKotak('wadahIframeUtama', namaLawan);
+                muatKeKotak('wadahIframeKecil', namaPengguna);
+            }
+        }
+
+        // === MASUKKAN VIDEO KE KOTAK ===
+        function muatKeKotak(idWadah, namaYangMasuk) {
+            const wadah = document.getElementById(idWadah);
+            wadah.innerHTML = ''; // hapus yang lama
+
+            const ops = {
+                roomName: kodeRuang,
+                width: '100%',
+                height: '100%',
+                parentNode: wadah,
+                interfaceConfigOverwrite: {
+                    DEFAULT_BACKGROUND: '#222',
+                    SHOW_JITSI_WATERMARK: false,
+                    SHOW_WATERMARK_FOR_GUESTS: false,
+                    TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup']
+                },
+                userInfo: { displayName: namaYangMasuk },
+                configOverwrite: { disableDeepLinking: true }
+            };
+
+            new JitsiMeetExternalAPI('meet.jit.si', ops);
+        }
+
+        // === HITUNG MUNDUR ===
         function hitungMundur() {
             const elemenTimer = document.getElementById('timer');
             
-            intervalHitung = setInterval(() => {
-                let menit = Math.floor(sisaDetik / 60);
-                let detik = sisaDetik % 60;
+            setInterval(() => {
+                if (sisaDetik < 0) return;
 
-                elemenTimer.textContent = 
-                    `${menit.toString().padStart(2, '0')}:${detik.toString().padStart(2, '0')}`;
+                let m = Math.floor(sisaDetik / 60);
+                let d = sisaDetik % 60;
+                elemenTimer.textContent = `${m.toString().padStart(2,'0')}:${d.toString().padStart(2,'0')}`;
 
-                // Peringatan sisa 3 menit
                 if (sisaDetik === 180) {
                     elemenTimer.classList.add('habis');
-                    alert('⚠️ Sisa waktu tinggal 3 menit lagi!');
+                    alert('⚠️ Sisa 3 menit lagi!');
                 }
-
+                if (sisaDetik === 0) {
+                    alert('⏰ Waktu habis — terima kasih. Sampai jumpa!');
+                    window.location.reload();
+                }
                 sisaDetik--;
-
-                if (sisaDetik < 0) {
-                    clearInterval(intervalHitung);
-                    alert('⏰ Waktu habis — panggilan akan ditutup. Terima kasih!');
-                    if (antarmukaJitsi) antarmukaJitsi.hangup();
-                }
             }, 1000);
         }
     </script>
