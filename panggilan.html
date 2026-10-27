@@ -8,7 +8,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background: #f0f4f8; padding: 20px; }
         .header { background: #1d3557; color: white; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
-        .timer { font-size: 32px; font-weight: bold; text-align: center; padding: 15px; background: white; border-radius: 8px; margin-bottom: 20px; color: #2a9d8f; }
+        .timer { font-size: 32px; font-weight: bold; text-align: center; padding: 15px; background: white; border-radius: 8px; margin-bottom: 20px; color: #666; }
+        .timer.aktif { color: #2a9d8f; }
         .timer.habis { color: #e63946; }
         .konten { max-width: 900px; margin: 0 auto; }
         .tombol-gabung { display: block; width: 100%; padding: 15px; font-size: 18px; font-weight: bold; background: #2a9d8f; color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 20px; }
@@ -40,10 +41,11 @@
     <script src="https://meet.jit.si/external_api.js"></script>
     <script>
         // === PENGATURAN ===
-        const DURASI_MENIT = 15; // Ubah di sini kalau mau ganti lama waktunya
+        const DURASI_MENIT = 15;
         let sisaDetik = DURASI_MENIT * 60;
         let waktuBerjalan = false;
         let antarmukaJitsi = null;
+        let intervalHitung = null;
 
         // Ambil data dari alamat
         const urlParams = new URLSearchParams(window.location.search);
@@ -54,7 +56,7 @@
         document.getElementById('infoRuang').textContent = 
             `Terhubung di ruang: ${kodeRuang} — ${namaPengguna}`;
 
-        // Mulai panggilan & timer
+        // === TIMER MULAI HANYA SAAT TOMBOL DIKLIK ===
         function mulaiPanggilan() {
             if (waktuBerjalan) return;
             waktuBerjalan = true;
@@ -63,7 +65,9 @@
             document.getElementById('tombolGabung').style.display = 'none';
             document.querySelector('.info').style.display = 'none';
 
-            // Tampilkan hitung mundur
+            // Ubah tampilan timer jadi angka & mulai hitung
+            const elemenTimer = document.getElementById('timer');
+            elemenTimer.classList.add('aktif');
             hitungMundur();
 
             // Tampilkan panggilan video
@@ -84,19 +88,13 @@
             };
 
             antarmukaJitsi = new JitsiMeetExternalAPI('meet.jit.si', pilihan);
-            
-            antarmukaJitsi.addEventListeners({
-                videoConferenceLeft: () => {
-                    antarmukaJitsi.dispose();
-                }
-            });
         }
 
         // Fungsi hitung mundur
         function hitungMundur() {
             const elemenTimer = document.getElementById('timer');
             
-            const hitung = setInterval(() => {
+            intervalHitung = setInterval(() => {
                 let menit = Math.floor(sisaDetik / 60);
                 let detik = sisaDetik % 60;
 
@@ -112,11 +110,9 @@
                 sisaDetik--;
 
                 if (sisaDetik < 0) {
-                    clearInterval(hitung);
+                    clearInterval(intervalHitung);
                     alert('⏰ Waktu habis — panggilan akan ditutup. Terima kasih!');
-                    if (antarmukaJitsi) {
-                        antarmukaJitsi.hangup();
-                    }
+                    if (antarmukaJitsi) antarmukaJitsi.hangup();
                 }
             }, 1000);
         }
